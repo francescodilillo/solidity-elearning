@@ -1,5 +1,5 @@
 // author:      Francesco Di Lillo
-// last edit:   15 September 2021
+// last edit:   20 September 2021
 // purpose:     Smart contract to simulate the distribution of the inheritance once the deceased variable flips to true. WIP
 
 
@@ -42,11 +42,27 @@ contract Will {
     // map through inheritance
     mapping(address => uint) inheritance;
     
-    function setInheritance (address payable wallet, uint amount) public {
+    function setInheritance (address payable wallet, uint amount) public onlyOwner {
         
         familyWallets.push(wallet);                 // add address to family wallet
         inheritance[wallet] = amount;
         
+    }
+
+    // Pay each family member based on their wallet
+    function payout() private mustBeDeceased{
+
+        for(uint i=0; i<familyWallets.length; i++) {
+            familyWallets[i].transfer(inheritance[familyWallets[i]]);
+        }
+
+    }
+
+    function hasDeceased() public onlyOwner{
+    
+        deceased = true;
+        payout();
+
     }
     
 }
